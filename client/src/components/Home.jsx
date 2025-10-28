@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { BookbaseURL } from '../../axiosinstance'
-
+import { useEffect } from 'react';
 const Home = () => {
   const [formData, setFormData] = useState({
     BookName: '',
@@ -9,6 +9,21 @@ const Home = () => {
     SellingPrice: '',
     PublishDate: ''
   });
+  const [booklist, setBooklist] = useState([]);
+
+  const getAllBooklist = async() =>{
+  try{
+  const {data} = await BookbaseURL.get('/booklists');
+setBooklist(data.data);
+    console.log("booklist",data);
+  }catch(err){
+    console.log("err",err);
+  }
+  }
+
+  useEffect(()=>{
+    getAllBooklist();
+  },[])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +37,7 @@ const Home = () => {
     e.preventDefault(); 
     try {
       console.log('Sending data:', formData); 
-      const response = await BookbaseURL.post('http://localhost:8000/book/addbook', formData);
+     const response = await BookbaseURL.post('/addbook', formData);
       console.log('Response:', response.data);
       
       // Reset form after successful submission
@@ -167,13 +182,21 @@ const Home = () => {
                     </tr>
                 </thead>
                 <tbody className='table-auto border-collapse border border-gray-300'>
-                    <tr className='hover:bg-gray-200'>
-                        <td className='px-6 py-3 whitespace-nowrap'>Name</td>
-                         <td className='px-6 py-3 whitespace-nowrap'>Name</td>
-                          <td className='px-6 py-3 whitespace-nowrap'>Name</td>
-                           <td className='px-6 py-3 whitespace-nowrap'>Name</td>
-                            <td className='px-6 py-3 whitespace-nowrap'>Name</td>
-                    </tr>
+                      {
+                        booklist?.map((book, index)=>{
+                          return(
+                            <tr className='hover:bg-gray-200' key={index}>
+                              <td className='px-6 py-3 whitespace-nowrap'>{book?.BookName}</td>
+                              <td className='px-6 py-3 whitespace-nowrap'>{book?.BookTitle}</td>
+                              <td className='px-6 py-3 whitespace-nowrap'>{book?.Author}</td>
+                              <td className='px-6 py-3 whitespace-nowrap'>{book?.SellingPrice}</td>
+                              <td className='px-6 py-3 whitespace-nowrap'>{book?.PublishDate}</td>
+                            </tr>
+                          )
+
+                        })
+                      }
+                  
                 </tbody>
             </table>
 

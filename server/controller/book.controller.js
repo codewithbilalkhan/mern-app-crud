@@ -33,4 +33,43 @@ const handleBookStoreController = async(req, res) => {
   }
 };
 
-module.exports = { handleBookStoreController };
+const handlebooklistController = async(req, res) =>{
+  try{
+   const booklist = await Book.find({});
+   return res.status(200).json({
+    message: "Book list fetched successfully",
+    Success: true,
+    totalcount: booklist.length, 
+    data: booklist
+   });
+  }catch(err){
+     console.error('Error fetching Books:', err);
+    return res.status(500).json({ 
+      message: err.message, 
+      Success: false 
+    });
+  }
+}
+
+
+const handlebookdeleteController = async(req, res) =>{
+  const body = req.body;
+ try{
+  const deleted = await Book.deleteOne({_id: body.id})
+  if(deleted.acknowledged){
+    return res.status(200).json({
+      message: "Book deleted successfully",
+      Success: true,
+    });
+  }
+
+ }catch(err){
+    console.error('Error deleting book:', err);
+    return res.status(500).json({ 
+      message: err.message, 
+      Success: false 
+    });
+ }
+}
+
+module.exports = { handleBookStoreController, handlebooklistController,handlebookdeleteController };
