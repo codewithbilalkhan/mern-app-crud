@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
+import { BookbaseURL } from '../../axiosinstance'
 
 const Home = () => {
   const [formData, setFormData] = useState({
-    bookName: '',
-    bookTitle: '',
-    author: '',
-    sellingPrice: '',
-    publishDate: ''
+    BookName: '',
+    BookTitle: '',
+    Author: '',
+    SellingPrice: '',
+    PublishDate: ''
   });
 
   const handleChange = (e) => {
@@ -17,11 +18,31 @@ const Home = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form Data:', formData);
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    try {
+      console.log('Sending data:', formData); 
+      const response = await BookbaseURL.post('http://localhost:8000/book/addbook', formData);
+      console.log('Response:', response.data);
+      
+      // Reset form after successful submission
+      setFormData({
+        BookName: '',
+        BookTitle: '',
+        Author: '',
+        SellingPrice: '',
+        PublishDate: ''
+      });
+      
+      alert('Book added successfully!');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error adding book. Please try again.');
+    }
   };
+
+  console.log("bookform", formData)
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,8 +62,8 @@ const Home = () => {
               <input
                 type="text"
                 id="bookName"
-                name="bookName"
-                value={formData.bookName}
+                name="BookName"
+                value={formData.BookName}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -57,8 +78,8 @@ const Home = () => {
               <input
                 type="text"
                 id="bookTitle"
-                name="bookTitle"
-                value={formData.bookTitle}
+                name="BookTitle"
+                value={formData.BookTitle}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -76,8 +97,8 @@ const Home = () => {
               <input
                 type="text"
                 id="author"
-                name="author"
-                value={formData.author}
+                name="Author"
+                value={formData.Author}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -92,8 +113,8 @@ const Home = () => {
               <input
                 type="number"
                 id="sellingPrice"
-                name="sellingPrice"
-                value={formData.sellingPrice}
+                name="SellingPrice"
+                value={formData.SellingPrice}
                 onChange={handleChange}
                 required
                 min="0"
@@ -113,8 +134,8 @@ const Home = () => {
               <input
                 type="date"
                 id="publishDate"
-                name="publishDate"
-                value={formData.publishDate}
+                name="PublishDate"
+                value={formData.PublishDate}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

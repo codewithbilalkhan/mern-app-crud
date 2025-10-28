@@ -1,11 +1,13 @@
 const express = require('express');
 const connectDB = require('./database');
 const bookRouter = require('./routes/book.routes');
+const cors = require('cors');
 
 connectDB();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res)=>{
     res.send('Hello World');

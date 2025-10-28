@@ -21,7 +21,7 @@ const handleBookStoreController = async(req, res) => {
     return res.status(201).json({ 
       message: "Book added successfully", 
       Success: true,
-      data: savedBook
+      id : savedBook?._id,
     });
     
   } catch(err) {
