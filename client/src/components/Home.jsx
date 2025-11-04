@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { BookbaseURL } from '../../axiosinstance'
 import { useEffect } from 'react';
+import { MdDelete, MdEdit } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 const Home = () => {
   const [formData, setFormData] = useState({
     BookName: '',
@@ -10,6 +12,37 @@ const Home = () => {
     PublishDate: ''
   });
   const [booklist, setBooklist] = useState([]);
+
+ const handleDelete = async(id) => {
+  if (window.confirm('Are you sure you want to delete this book?')) {
+    try{
+      const {data} = await BookbaseURL.delete('/deletebook', {data: {id: id}});
+      if(data?.Success){
+        alert('Book deleted successfully');
+        // Refresh the book list
+        getAllBooklist();
+      }
+    } catch(err){
+      console.log("err", err);
+      alert('Error deleting book. Please try again.');
+    }
+  }
+};
+
+  const handleEdit = (book) => {
+    // For now, populate the form with book data for editing
+    setFormData({
+      BookName: book.BookName,
+      BookTitle: book.BookTitle,
+      Author: book.Author,
+      SellingPrice: book.SellingPrice,
+      PublishDate: book.PublishDate
+    });
+    
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    alert('Book data loaded in form for editing. Modify and submit.');
+  };
 
   const getAllBooklist = async() =>{
   try{
@@ -48,6 +81,9 @@ setBooklist(data.data);
         SellingPrice: '',
         PublishDate: ''
       });
+      
+      // Refresh the book list
+      getAllBooklist();
       
       alert('Book added successfully!');
     } catch (error) {
@@ -179,6 +215,7 @@ setBooklist(data.data);
                           <th className='tracking-wider px-6 py-3 text-left text-xs  font-medium text-gray-500 uppercase'>Book Author</th>
                           <th className='tracking-wider px-6 py-3 text-left text-xs  font-medium text-gray-500 uppercase'>Selling Price</th>
                           <th className='tracking-wider px-6 py-3 text-left text-xs  font-medium text-gray-500 uppercase'>Publish Date</th>
+                          <th className='tracking-wider px-6 py-3 text-center text-xs  font-medium text-gray-500 uppercase'>Actions</th>
                     </tr>
                 </thead>
                 <tbody className='table-auto border-collapse border border-gray-300'>
@@ -191,6 +228,18 @@ setBooklist(data.data);
                               <td className='px-6 py-3 whitespace-nowrap'>{book?.Author}</td>
                               <td className='px-6 py-3 whitespace-nowrap'>{book?.SellingPrice}</td>
                               <td className='px-6 py-3 whitespace-nowrap'>{book?.PublishDate}</td>
+                              <td className='px-6 py-3 whitespace-nowrap'>
+                                <div className='w-20 flex justify-center gap-5'>
+                                  <div className='h-8 w-8 flex justify-center items-center bg-red-100 text-red-600 rounded text-lg cursor-pointer' onClick={()=> handleDelete(book._id)}>
+                                    <span><MdDelete/></span>
+                                  </div>
+                                  <div className='h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg  curser-pointer' onClick={() => handleEdit(book)}>
+                                    <span><MdEdit/></span>
+                                  </div>
+                                
+
+                                </div>
+                              </td>
                             </tr>
                           )
 

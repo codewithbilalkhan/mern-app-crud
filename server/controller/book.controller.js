@@ -72,4 +72,31 @@ const handlebookdeleteController = async(req, res) =>{
  }
 }
 
-module.exports = { handleBookStoreController, handlebooklistController,handlebookdeleteController };
+
+const handlebookupdateController = async(req, res) => {
+  try{
+    const body = req.body;
+    const updating = await Book.updateOne({_id: body?._id}, {$set: body});
+   
+    
+    if(updating.modifiedCount > 0){
+      return res.status(200).json({
+        message: "Book updated successfully",
+        Success: true,
+      });
+    } else {
+      return res.status(404).json({
+        message: "Book not found or no changes made",
+        Success: false,
+      });
+    }
+  }catch(err){
+      console.error('Error updating book:', err);
+      return res.status(500).json({
+        message: err.message, 
+        Success: false 
+      });
+  }
+}
+
+module.exports = { handleBookStoreController, handlebooklistController,handlebookdeleteController, handlebookupdateController };
