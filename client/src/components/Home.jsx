@@ -9,9 +9,11 @@ const Home = () => {
     BookTitle: '',
     Author: '',
     SellingPrice: '',
-    PublishDate: ''
+    PublishDate: '',
+    _id: null // Add ID field for updates
   });
   const [booklist, setBooklist] = useState([]);
+  const [isupdating, setIsUpdating] = useState(false);
 
  const handleDelete = async(id) => {
   if (window.confirm('Are you sure you want to delete this book?')) {
@@ -29,20 +31,21 @@ const Home = () => {
   }
 };
 
-  const handleEdit = (book) => {
-    // For now, populate the form with book data for editing
-    setFormData({
-      BookName: book.BookName,
-      BookTitle: book.BookTitle,
-      Author: book.Author,
-      SellingPrice: book.SellingPrice,
-      PublishDate: book.PublishDate
-    });
-    
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    alert('Book data loaded in form for editing. Modify and submit.');
-  };
+const handlelupdate = (data) => {
+  setFormData({
+    BookName: data?.BookName,
+    BookTitle: data?.BookTitle,
+    Author : data?.Author,
+    SellingPrice: data?.SellingPrice,
+    PublishDate: data?.PublishDate,
+    _id: data?._id
+  }); 
+  setIsUpdating(true);
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+} 
+
+  
 
   const getAllBooklist = async() =>{
   try{
@@ -70,25 +73,39 @@ setBooklist(data.data);
     e.preventDefault(); 
     try {
       console.log('Sending data:', formData); 
-     const response = await BookbaseURL.post('/addbook', formData);
+      
+      let response;
+      if (isupdating && formData._id) {
+        // Update existing book
+        response = await BookbaseURL.put('/updatebook', formData);
+        alert('Book updated successfully!');
+      } else {
+        // Create new book
+        const { _id, ...dataWithoutId } = formData; // Remove _id for new books
+        response = await BookbaseURL.post('/addbook', dataWithoutId);
+        alert('Book added successfully!');
+      }
+      
       console.log('Response:', response.data);
       
-      // Reset form after successful submission
+     
       setFormData({
         BookName: '',
         BookTitle: '',
         Author: '',
         SellingPrice: '',
-        PublishDate: ''
+        PublishDate: '',
+        _id: null
       });
       
-      // Refresh the book list
+      // Reset update mode
+      setIsUpdating(false);
+      
       getAllBooklist();
       
-      alert('Book added successfully!');
     } catch (error) {
       console.error('Error:', error);
-      alert('Error adding book. Please try again.');
+      alert('Error processing request. Please try again.');
     }
   };
 
@@ -99,8 +116,12 @@ setBooklist(data.data);
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Add New Book</h2>
-          <p className="mt-2 text-sm text-gray-600">Fill in the book details below</p>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {isupdating ? 'Update Book' : 'Add New Book'}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {isupdating ? 'Modify the book details below' : 'Fill in the book details below'}
+          </p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -195,13 +216,32 @@ setBooklist(data.data);
           </div>
 
         
-          <div className="pt-4 flex justify-center">
+          <div className="pt-4 flex justify-center gap-4">
             <button
               type="submit"
               className="px-8 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 font-medium"
             >
-              Submit
+              {isupdating ? 'Update Book' : 'Add Book'}
             </button>
+            {isupdating && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    BookName: '',
+                    BookTitle: '',
+                    Author: '',
+                    SellingPrice: '',
+                    PublishDate: '',
+                    _id: null
+                  });
+                  setIsUpdating(false);
+                }}
+                className="px-8 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 font-medium"
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -233,7 +273,7 @@ setBooklist(data.data);
                                   <div className='h-8 w-8 flex justify-center items-center bg-red-100 text-red-600 rounded text-lg cursor-pointer' onClick={()=> handleDelete(book._id)}>
                                     <span><MdDelete/></span>
                                   </div>
-                                  <div className='h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg  curser-pointer' onClick={() => handleEdit(book)}>
+                                  <div className='h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg  curser-pointer' onClick={() => handlelupdate(book)}>
                                     <span><MdEdit/></span>
                                   </div>
                                 
